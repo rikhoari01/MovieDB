@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MovieDB | Database for Your Favorite Movies</title>
+
+    <!-- CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css"
+      integrity="sha512-YWzhKL2whUzgiheMoBFwW8CKV4qpHQAEuvilg9FAn5VJUDwKZZxkJNuGM4XkWuk94WCrrwslk8yWNGmY1EduTA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+        text-decoration: none;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-100">
+    <nav>
+      <div
+        class="fixed bg-slate-900 w-full py-5 px-5 z-20 drop-shadow-[0_1px_10px_rgba(255,255,255,0.2)]"
+      >
+        <div class="container md:max-w-5xl mx-auto">
+          <h1 class="text-white text-xl font-bold inline-block">MovieDB</h1>
+          <i
+            id="menuBtn"
+            class="fa fa-bars inline-block float-right text-white text-xl md:hidden cursor-pointer transition-all"
+          ></i>
+          <ul
+            id="menu"
+            class="text-white font-semibold text-md float-right hidden md:block"
+          >
+            <li class="inline-block mx-2"><a href="#">Home</a></li>
+            <li class="inline-block mx-2"><a href="#">TV Shows</a></li>
+            <li class="inline-block mx-2"><a href="#">Genres</a></li>
+            <li class="inline-block mx-2"><a href="#">Box Office</a></li>
+          </ul>
+        </div>
+      </div>
+      <ul
+        id="mobile-menu"
+        class="fixed mt-[67px] w-full text-white text-center font-semibold text-md float-right md:hidden bg-slate-800 top-[-100%] transition-all z-10 py-5"
+      >
+        <li class="py-5"><a href="#">Home</a></li>
+        <li class="py-5"><a href="#">TV Shows</a></li>
+        <li class="py-5"><a href="#">Genres</a></li>
+        <li class="py-5"><a href="#">Box Office</a></li>
+      </ul>
+    </nav>
+
+    <main
+      class="container mx-auto md:max-w-5xl pt-[100px] px-5 min-h-[calc(100vh-84px)]"
+    >
+      <!-- Search Bar -->
+      <label
+        for="default-search"
+        class="mb-2 text-sm font-medium text-gray-900 sr-only"
+        >Search</label
+      >
+      <div class="relative">
+        <div
+          class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none"
+        >
+          <svg
+            class="w-5 h-5 text-gray-500"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            ></path>
+          </svg>
+        </div>
+        <input
+          type="search"
+          id="searchInput"
+          class="block p-4 pl-10 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Search Movies..."
+          required
+        />
+        <button
+          id="searchBtn"
+          type="submit"
+          class="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2"
+        >
+          Search
+        </button>
+      </div>
+
+      <!-- Movies List -->
+      <div id="loading" class="text-center py-10">
+        <svg
+          role="status"
+          class="inline w-8 h-8 mr-2 text-gray-200 animate-spin fill-blue-600"
+          viewBox="0 0 100 101"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+            fill="currentColor"
+          />
+          <path
+            d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+            fill="currentFill"
+          />
+        </svg>
+        <p class="text-center pt-5">Loading...</p>
+      </div>
+
+      <div id="movie-list" class="text-center pt-10 pb-5"></div>
+
+      <div id="page-number" class="text-center pt-5 pb-10 mx-w-screen">
+        <ul class="inline-flex -space-x-px">
+          <li>
+            <input
+              type="button"
+              value="Previous"
+              class="w-[90px] py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 cursor-pointer"
+            />
+          </li>
+          <li>
+            <input
+              type="button"
+              value="1"
+              data-id="1"
+              class="min-w-[42px] py-2 px-3 ml-0 leading-tight text-white bg-blue-500 border border-gray-300 hover:bg-blue-600 cursor-pointer"
+            />
+          </li>
+          <li>
+            <input
+              type="button"
+              value="2"
+              data-id="2"
+              class="min-w-[42px] py-2 px-3 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 cursor-pointer"
+            />
+          </li>
+          <li>
+            <input
+              type="button"
+              value="3"
+              data-id="3"
+              class="mr-[6px] md:mr-0 min-w-[42px] py-2 px-3 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 cursor-pointer"
+            />
+          </li>
+          <li>
+            <input
+              type="button"
+              value="4"
+              data-id="4"
+              class="hidden md:inline-block min-w-[42px] py-2 px-3 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 cursor-pointer"
+            />
+          </li>
+          <li>
+            <input
+              type="button"
+              value="5"
+              data-id="5"
+              class="hidden md:inline-block min-w-[42px] py-2 px-3 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 cursor-pointer"
+            />
+          </li>
+          <li>
+            <input
+              type="button"
+              value="6"
+              data-id="6"
+              class="hidden md:inline-block min-w-[42px] py-2 px-3 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 cursor-pointer"
+            />
+          </li>
+          <li>
+            <input
+              type="button"
+              value="7"
+              data-id="7"
+              class="hidden md:inline-block min-w-[42px] py-2 px-3 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 cursor-pointer"
+            />
+          </li>
+          <li>
+            <input
+              type="button"
+              value="8"
+              data-id="8"
+              class="hidden md:inline-block min-w-[42px] py-2 px-3 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 cursor-pointer"
+            />
+          </li>
+          <li>
+            <input
+              type="button"
+              value="9"
+              data-id="9"
+              class="hidden md:inline-block min-w-[42px] py-2 px-3 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 cursor-pointer"
+            />
+          </li>
+          <li>
+            <input
+              type="button"
+              value="10"
+              data-id="10"
+              class="hidden md:inline-block min-w-[42px] py-2 px-3 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 cursor-pointer"
+            />
+          </li>
+          <li>
+            <input
+              type="button"
+              value="Next"
+              class="w-[90px] py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 cursor-pointer"
+            />
+          </li>
+        </ul>
+      </div>
+
+      <!-- Modal -->
+      <div
+        id="modal"
+        class="hidden fixed overflow-y-auto overflow-x-hidden w-full inset-0 h-full bg-black bg-opacity-50"
+      >
+        <div class="relative px-4 pt-24 w-full max-w-3xl mx-auto mb-10">
+          <div class="relative bg-white rounded-lg shadow">
+            <div
+              class="flex justify-between items-start p-4 rounded-t border-b"
+            >
+              <h3 id="modal-title" class="text-xl font-semibold text-gray-900">
+                Movie Details
+              </h3>
+              <button
+                type="button"
+                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center modal-close"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+            <div class="sm:grid sm:grid-cols-3 sm:gaps-5 p-4">
+              <div>
+                <img id="movie-poster" src="" alt="" />
+              </div>
+              <div
+                class="col-span-2 mt-5 md:mt-0 md:max-h-[350px] overflow-y-auto"
+              >
+                <table class="w-full text-sm text-left text-gray-500">
+                  <tbody>
+                    <tr class="border-b odd:bg-white even:bg-gray-50">
+                      <th
+                        class="pl-5 pr-3 py-2 font-medium text-gray-900 whitespace-nowrap"
+                      >
+                        Title
+                      </th>
+                      <td id="movie-title" class="px-3 py-2"></td>
+                    </tr>
+                    <tr class="border-b odd:bg-white even:bg-gray-50">
+                      <th
+                        class="pl-5 pr-3 py-2 font-medium text-gray-900 whitespace-nowrap"
+                      >
+                        Release Date
+                      </th>
+                      <td id="movie-date" class="px-3 py-2"></td>
+                    </tr>
+                    <tr class="border-b odd:bg-white even:bg-gray-50">
+                      <th
+                        class="pl-5 pr-3 py-2 font-medium text-gray-900 whitespace-nowrap"
+                      >
+                        Genres
+                      </th>
+                      <td id="movie-genres" class="px-3 py-2"></td>
+                    </tr>
+                    <tr class="border-b odd:bg-white even:bg-gray-50">
+                      <th
+                        class="pl-5 pr-3 py-2 font-medium text-gray-900 whitespace-nowrap"
+                      >
+                        Language
+                      </th>
+                      <td id="movie-language" class="px-3 py-2"></td>
+                    </tr>
+                    <tr class="border-b odd:bg-white even:bg-gray-50">
+                      <th
+                        class="pl-5 pr-3 py-2 font-medium text-gray-900 whitespace-nowrap"
+                      >
+                        Rating
+                      </th>
+                      <td id="movie-rating" class="px-3 py-2"></td>
+                    </tr>
+                    <tr class="border-b odd:bg-white even:bg-gray-50">
+                      <th
+                        class="pl-5 pr-3 py-2 font-medium text-gray-900 whitespace-nowrap"
+                      >
+                        Overview
+                      </th>
+                      <td id="movie-overview" class="px-3 py-2 text-justify"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="mt-5">
+      <div class="bg-slate-900 w-full py-5 text-center text-white">
+        Created with <i class="fa fa-heart text-rose-600"></i> by
+        <a href="https://abdurikho.my.id">Rikho Ari</a>
+      </div>
+    </footer>
+
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.js"
+      integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+      crossorigin="anonymous"
+    ></script>
+    <script src="assets/js/main.js"></script>
+  </body>
+</html>
