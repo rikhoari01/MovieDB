@@ -220,6 +220,9 @@ $(document).on('click', 'article', (e) => {
   $("#movie-rating").empty();
 
   $.get(`https://api.themoviedb.org/3/movie/${id}?api_key=1d2c306bdbd50caa1c4dc11301c06f4c`, (data) => {
+    let d = new Date(data.release_date);
+    let date = d.toLocaleString('default', {day: '2-digit', month: 'long', year: 'numeric'});
+
     let l = data.spoken_languages;
     let lang = l.map((data) => {
       return data.english_name;
@@ -231,7 +234,7 @@ $(document).on('click', 'article', (e) => {
 
     $("#movie-poster").attr({src: `https://image.tmdb.org/t/p/w500${data.poster_path}`, alt: data.title});
     $("#movie-title").text(data.title);
-    $("#movie-date").text(data.release_date);
+    $("#movie-date").text(date);
     $("#movie-genres").text(genres.join(", "));
     $("#movie-language").text(lang.join(", "));
     $("#movie-rating").append("<i class='fa fa-star text-yellow-400'></i> "+checkRating(data.vote_average));
